@@ -3,6 +3,10 @@ import pandas as pd
 import sqlite3
 import os
 from flask import Flask, request, jsonify, render_template_string
+import dash
+from dash import Dash, html, dcc
+import plotly.graph_objs as go
+import numpy as np 
 
 app = Flask(__name__)
 
@@ -109,6 +113,69 @@ def consultar():
         <br>
         <a href='/'>Voltar</a>
     ''')
+
+@app.route('/graficos')
+def graficos():
+    with sqlite3.connect(DB_PATH) as conn:
+        inad_df = pd.read_sql_query('SELECT * FROM inadimplencia', conn)
+        selic_df = pd.read_sql_query('SELECT * FROM selic', conn)
+# Criaremos nosso proimeiro grafico de Inadimplencia
+    fig1 = go.Figure()
+    fig1.add_trace(go.Scatter(
+            x = inad_df['mes'],
+            y = inad_df['inadimplencia'],
+            mode = 'lines+markers',
+            name = 'Inadimplencia'
+        )
+    )
+# ggplot2, seaborn, simple_white, plotly, plotly_white, presentation, xgridoff, ygridoff, gridon, none, plotly_dark
+    fig1.update_layout(
+        title = "Evolução da Inadimplencia",
+        xaxis_title = "Mês",
+        yaxis_title = "%",
+        template = "plotly_dark"
+    )
+    
+    fig2 = go.Figure()
+    fig2.add_trace(go.Scatter(
+        x = selic_df['mes'],
+        y = selic_df['selic_diaria'],
+        mode = 'lines+markers',
+        name = 'Selic'
+        )
+    )
+    fig2.update_layout(
+        title = 'Média Mensal da Selic',
+        xaxis_title = "Mês",
+        yaxis_title = "Taxa",
+        template = "plotly_dark"
+    )
+
+    graph_html_1 = fig1.to_html(full_html=False, include_plotlyjs='cdn')
+    graph_html_2 = fig2.to_html(full_html=False, include_plotlyjs='cdn')
+
+    return render_template_string('''
+        <html>
+            <head>
+                <title> Graficos Economicos </title>
+                <style>
+                    .container{
+                        display:flex;
+                        justify-content:space-around;      
+                        }
+                    .graph{
+                        width: 48%;
+                        }
+                </style>
+                <h1>Graficos Economicos</h1>
+                <div class='container'>
+                    <div class='graph'>{{ grafico1 | safe }}</div>
+                    <div class='graph'>{{ grafico2 | safe }}</div>
+                </div>
+            </head>
+        </html>
+    ''', grafico1 = graph_html_1, grafico2 = graph_html_2)
+
 
 if __name__ == '__main__' :
     init_db()
