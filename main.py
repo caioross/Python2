@@ -176,6 +176,41 @@ def graficos():
         </html>
     ''', grafico1 = graph_html_1, grafico2 = graph_html_2)
 
+# Rota para editar a tabela de inadimplencia
+@app.route('/editar_inadimplencia', methods=['POST','GET'])
+def editar_inadimplencia():
+    # Bloco que será carregado apenas quando receber o post
+    if request.method == 'POST':
+        mes = request.form.get('campo_mes')
+        novo_valor = request.form.get('campo_valor')
+        try:
+            novo_valor = float(novo_valor)
+        except:
+            return jsonify({'Erro':'Valor Invalido'})
+        
+        # atualizar os dados do banco
+        with sqlite3.connect(DB_PATH) as conn:
+            cursor = conn.cursor()
+            cursor.execute("UPDATE inadimplencia SET inadimplencia = ? WHERE mes = ?", (novo_valor, mes))
+            conn.commit()
+        return jsonify({'Mensagem:':f'Dados do mês {mes} atualizados com sucesso'})
+        
+    # Bloco que será carregado a primeira vez que a pagina abrir (sem receber post)
+    return render_template_string('''
+        <h1> Editar Inadimplencia</h1>
+        <form method="POST" action='/editar_inadimplencia'>
+            <label>Mês (AAAA-MM):</label>
+            <input type='text' name='campo_mes'><br>   
+
+            <label>Novo valor de Inadimplencia:</label>
+            <input type='text' name='campo_valor'><br>
+
+            <input type='submit' value='Atualizar dados'>
+        </form>
+        <a href='/'>Voltar</a>
+    ''')
+
+
 
 if __name__ == '__main__' :
     init_db()
