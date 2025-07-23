@@ -7,6 +7,8 @@ import dash
 from dash import Dash, html, dcc
 import plotly.graph_objs as go
 import numpy as np 
+from sklearn.cluster import KMeans
+from sklearn.preprocessing import StandardScaler
 
 app = Flask(__name__)
 
