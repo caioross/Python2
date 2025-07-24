@@ -384,9 +384,6 @@ def correlacao():
     </html>
     ''', grafico_correlacao = graph_html)
 
-
-
-
 if __name__ == '__main__' :
     init_db()
     app.run(
