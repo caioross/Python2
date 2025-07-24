@@ -341,6 +341,48 @@ def correlacao():
         ),
         margin=dict(l=60, r=60, t=120, b=60)
     )
+    graph_html = fig.to_html(full_html = False, include_plotlyjs='cdn')
+    return  render_template_string('''
+    <html>
+        <head>
+            <title>Correlação SELIC x Inadimplencia</title>
+            <style>
+                body{
+                    font-family: Arial;
+                    background-color #ffffff;
+                    color: #333;               
+                }
+                .container{
+                    width:90%;
+                    margin: auto;
+                    text-align: center;         
+                }
+                h1{
+                    margin-top: 40px;                 
+                }
+                a{
+                    text-decoration:none;
+                    color: #007bff;               
+                }
+                a:hover{
+                    text-decoration: underline;  
+                    /* Isso é um comentario CSS */           
+                }
+            </style>
+            <!-- Isso é um comentario HTML-->
+        </head>
+        <body>
+            <div class='container'>
+                <h1> Correlação entre Selic e Inadimplencia</h1>
+                <div> {{ grafico_correlacao | safe }} </div>    
+                <br>
+                <div>
+                    <a href='/'> Voltar </a>                   
+                </div>
+            </div>                    
+        </body>
+    </html>
+    ''', grafico_correlacao = graph_html)
 
 
 
