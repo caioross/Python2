@@ -43,5 +43,70 @@ print('\nAvengers Dataframe após a limpeza')
 print(avengers_df.head())
 print('\nDrinks Dataframe após a limpeza')
 print(drinks_df.head())
-                
+
+# Etapa 3 Vamos analisar os dados 
+def show_statistics(df, title):
+    print(f'\nEstatisticas descritivas de {title}')
+    print(df.describe())
+
+show_statistics(avengers_df,"Vingadores")
+show_statistics(drinks_df,"COnsumo de Alcool")
+
+# Etapa 4, criação da visualização com o plotly
+def create_avengers_chart():
+    return px.bar(
+        avengers_df,
+        x='Name/Alias',
+        y='Appearances',
+        title='Numero de aparições dos Vingadores',
+        labels={'Name/Alias':'Personagem','Appearances':'Numero de aparições'},
+        color='Gender'
+    )
+# função para criar o grafico de consumo de alcool
+def create_drinks_chart():
+    return px.bar(
+        drinks_df,
+        x='country',
+        y='total_litres_of_pure_alcohol',
+        title='Consumo de Alcool por pais',
+        labels={'country':'Pais','total_litres_of_pure_alcohol':'Litros de Alcool'},
+        color='total_litres_of_pure_alcohol'
+    )
+
+app = dash.Dash(__name__)
+
+app.layout = html.Div([
+    html.H1('Analise de dados - Vingadores e Consumo de Alcool', style={'text-align':'center'}),
+    #dropdown para escolher a visualização
+    dcc.Dropdown(
+        id='dropdown-chart',
+        options=[
+            {'label':'Numero de Aparições dos Vingadores','value':'avengers'},
+            {'label':'Consumo de Alcool por Pais', 'value':'drinks'}
+        ],
+        value='avengers',
+        style={'width':'50%','margin':'auto'}
+    ),
+    dcc.Graph(id='graph-output')
+])
+#função de callback para atualizar o grafico baseado na escolha do dropdown
+@app.callback(
+    Output('graph-output','figure'),
+    [Input('dropdown-chart','value')]
+)
+def update_graph(chart_type):
+    try:
+        if chart_type == 'avengers':
+            return create_avengers_chart()
+        elif chart_type == 'drinks':
+            return create_drinks_chart()
+    except Exception as e:
+        print(f"Erro ao gerar o grafico: {e}")
+        return {}
+if __name__ == '__main__':
+    try:
+        app.run(debug=True)
+    except Exception as e:
+        print(f'Erro ao rodar o servidor Dash: {e}')
+
 
