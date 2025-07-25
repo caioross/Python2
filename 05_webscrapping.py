@@ -106,13 +106,3 @@ for filme in filmes :
     conn.commit()
     conn.close()
 print('Dados salvos com sucesso no banco de dados SQLite!')
-
-
-
-
-
-
-
-
-    
-
