@@ -3,6 +3,7 @@ from bs4 import BeautifulSoup
 import pandas as pd
 import time
 import random
+import sqlite3
 
 # Headers para simular um navegador real
 headers = {
@@ -45,9 +46,8 @@ for pagina in range(1,2):
         else:
             diretor = "N/A"
             elenco_str = "N/A"
-            
+
         #categoria
-        categoria = []
         genero_block = filme_soup.find("div",class_="meta-body-info")
         if genero_block:
             genero_links = genero_block.find_all('a')
@@ -75,3 +75,44 @@ for pagina in range(1,2):
 df = pd.DataFrame(filmes)
 print(df.head())
 df.to_csv("filmes_adorocinema.csv", index=False, encoding="utf-8-sig")
+
+conn = sqlite3.connect('filmes_adorocinema.db')
+cursor = conn.cursor()
+cursor.execute('''
+    CREATE TABLE IF NOT EXISTS filmes(
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        titulo TEXT,
+        direcao TEXT,
+        elenco TEXT,
+        nota REAL,
+        link TEXT,
+        ano TEXT,
+        categoria TEXT
+        )
+''')
+#aqui vamos inserir os dados no banco de dados
+for filme in filmes :
+    cursor.execute('''
+        INSERT INT filmes (titulo, direcao, elenco, nota, link, ano, categoria) VALUES (?, ?, ?, ?, ?, ?, ?)
+    ''',(
+        filme['titulo'],
+        filme['direcao'],
+        filme['elenco'],
+        float(filme['nota']) if filme['nota'] != 'N/A' else None,
+        filme['link'],
+        filme['ano'],
+        filme['categoria']
+    ))
+    conn.commit()
+    conn.close()
+print('Dados salvos com sucesso no banco de dados SQLite!')
+
+
+
+
+
+
+
+
+    
+
